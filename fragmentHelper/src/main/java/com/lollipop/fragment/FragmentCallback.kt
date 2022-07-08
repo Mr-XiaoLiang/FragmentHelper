@@ -9,3 +9,7 @@ fun interface FragmentInitCallback {
 fun interface FragmentArgumentsChangedCallback {
     fun onFragmentArgumentsChanged(pageKey: String, arguments: Bundle)
 }
+
+interface LollipopPage {
+    fun onArgumentsChanged()
+}
