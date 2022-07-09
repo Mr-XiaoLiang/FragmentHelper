@@ -10,7 +10,7 @@ import androidx.lifecycle.Lifecycle
 class FragmentSwitcher(
     private val fragmentManager: FragmentManager,
     private val container: ViewGroup
-) {
+) : FragmentController() {
 
     companion object {
         fun getTag(container: ViewGroup, key: String): String {
@@ -37,9 +37,6 @@ class FragmentSwitcher(
 
     private val infoMap = HashMap<String, FragmentInfo>()
 
-    private val initCallback = ListenerManager<FragmentInitCallback>()
-    private val argumentsChangedCallback = ListenerManager<FragmentArgumentsChangedCallback>()
-
     var currentPage: String = ""
         private set
 
@@ -52,7 +49,7 @@ class FragmentSwitcher(
         }
     }
 
-    val size: Int
+    override val size: Int
         get() {
             return infoMap.size
         }
@@ -81,30 +78,6 @@ class FragmentSwitcher(
             infoMap[it.pageKey] = it
         }
         switchTo(backup)
-    }
-
-    fun addListener(callback: FragmentInitCallback) {
-        initCallback.add(callback)
-    }
-
-    fun removeListener(callback: FragmentInitCallback) {
-        initCallback.remove(callback)
-    }
-
-    fun addListener(callback: FragmentArgumentsChangedCallback) {
-        argumentsChangedCallback.add(callback)
-    }
-
-    fun removeListener(callback: FragmentArgumentsChangedCallback) {
-        argumentsChangedCallback.remove(callback)
-    }
-
-    private fun onFragmentCreated(pageKey: String, arguments: Bundle) {
-        initCallback.invoke { it.onFragmentCreated(pageKey, arguments) }
-    }
-
-    private fun onFragmentArgumentsChanged(pageKey: String, arguments: Bundle) {
-        argumentsChangedCallback.invoke { it.onFragmentArgumentsChanged(pageKey, arguments) }
     }
 
     private fun onArgumentsChanged(fragment: Fragment) {
@@ -136,6 +109,7 @@ class FragmentSwitcher(
             } else {
                 transaction.show(fragment)
                 transaction.setMaxLifecycle(fragment, Lifecycle.State.RESUMED)
+                updateFragment(fragment, pageKey, arguments)
             }
         }
         val backStack: String
@@ -147,19 +121,6 @@ class FragmentSwitcher(
         }
         transaction.commit()
         return backStack
-    }
-
-    private fun createFragment(fragmentInfo: FragmentInfo, bundle: Bundle?): Fragment {
-        val fragment = fragmentInfo.fragment.newInstance()
-        val arguments = fragment.arguments ?: Bundle()
-        if (bundle != null) {
-            arguments.putAll(bundle)
-        }
-        onFragmentCreated(fragmentInfo.pageKey, arguments)
-        onFragmentArgumentsChanged(fragmentInfo.pageKey, arguments)
-        fragment.arguments = arguments
-        onArgumentsChanged(fragment)
-        return fragment
     }
 
     private fun updateFragment(fragment: Fragment, pageKey: String, bundle: Bundle?) {
