@@ -62,6 +62,9 @@ class FragmentSwitcher(
     }
 
     fun findInfo(key: String): FragmentInfo? {
+        if (infoMap.isEmpty()) {
+            return null
+        }
         return infoMap[key]
     }
 

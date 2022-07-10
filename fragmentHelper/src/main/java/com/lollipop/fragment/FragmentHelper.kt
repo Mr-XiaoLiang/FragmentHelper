@@ -1,9 +1,12 @@
 package com.lollipop.fragment
 
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LifecycleOwner
+import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.widget.ViewPager2
 
 object FragmentHelper {
 
@@ -29,6 +32,24 @@ object FragmentHelper {
         fun add(info: FragmentInfo): Builder {
             infoList.add(info)
             return this
+        }
+
+        fun bind(viewGroup: ViewPager, stateEnable: Boolean): ViewPagerHelper.V1 {
+            return ViewPagerHelper.V1(viewGroup, fragmentManager, stateEnable).apply {
+                reset(infoList)
+            }
+        }
+
+        fun bind(viewGroup: ViewPager2): ViewPagerHelper.V2 {
+            return ViewPagerHelper.V2(viewGroup, fragmentManager, lifecycleOwner.lifecycle).apply {
+                reset(infoList)
+            }
+        }
+
+        fun bind(viewGroup: ViewGroup): FragmentSwitcher {
+            return FragmentSwitcher(fragmentManager, viewGroup).apply {
+                reset(infoList)
+            }
         }
 
     }
