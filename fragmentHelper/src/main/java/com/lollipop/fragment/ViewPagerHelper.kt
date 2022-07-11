@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.Lifecycle
+import androidx.recyclerview.widget.DiffUtil
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -212,6 +213,24 @@ sealed class ViewPagerHelper : FragmentController() {
                 return infoProvider(position)
             }
 
+        }
+
+        private class DiffHelper: DiffUtil.Callback() {
+            override fun getOldListSize(): Int {
+                TODO("Not yet implemented")
+            }
+
+            override fun getNewListSize(): Int {
+                TODO("Not yet implemented")
+            }
+
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                TODO("Not yet implemented")
+            }
+
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                TODO("Not yet implemented")
+            }
         }
 
     }
