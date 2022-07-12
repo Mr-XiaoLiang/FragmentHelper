@@ -7,12 +7,16 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.lifecycle.Lifecycle
-import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 
 sealed class ViewPagerHelper : FragmentController() {
+
+    companion object {
+        private const val ID_MASK = 0xFFFFFFFFL
+    }
 
     private val fragmentList = ArrayList<FragmentInfo>()
 
@@ -38,6 +42,10 @@ sealed class ViewPagerHelper : FragmentController() {
         get() {
             return fragmentList.size
         }
+
+    operator fun get(index: Int): FragmentInfo {
+        return fragmentList[index]
+    }
 
     protected fun loadTitle(context: Context, index: Int): String {
         if (index in 0 until size) {
@@ -75,9 +83,29 @@ sealed class ViewPagerHelper : FragmentController() {
         notifyItemChanged(index, info.pageKey)
     }
 
+    protected fun getItemId(position: Int): Long? {
+        if (position < 0 || position >= size) {
+            return null
+        }
+        val info = get(position)
+        val hashCode = System.identityHashCode(info).toLong()
+        val positionLong = position.toLong()
+        return hashCode shl 32 or positionLong
+    }
+
+    protected fun containsItem(itemId: Long): Boolean {
+        val position = (itemId and ID_MASK).toInt()
+        if (position < 0 || position >= size) {
+            return false
+        }
+        val hashCode = (itemId shr 32 and ID_MASK).toInt()
+        val info = get(position)
+        return System.identityHashCode(info) == hashCode
+    }
+
     class V1(
         private val viewPager: ViewPager,
-        private val fragmentManager: FragmentManager,
+        fragmentManager: FragmentManager,
         stateEnable: Boolean = true
     ) : ViewPagerHelper() {
 
@@ -85,7 +113,13 @@ sealed class ViewPagerHelper : FragmentController() {
             viewPager.adapter = if (stateEnable) {
                 StateAdapter(fragmentManager, ::size, ::createFragment, ::loadTitleByIndex)
             } else {
-                OrdinaryAdapter(fragmentManager, ::size, ::createFragment, ::loadTitleByIndex)
+                OrdinaryAdapter(
+                    fragmentManager,
+                    ::size,
+                    ::getItemId,
+                    ::createFragment,
+                    ::loadTitleByIndex
+                )
             }
         }
 
@@ -142,6 +176,7 @@ sealed class ViewPagerHelper : FragmentController() {
         private class OrdinaryAdapter(
             manager: FragmentManager,
             private val sizeProvider: () -> Int,
+            private val itemIdProvider: (position: Int) -> Long?,
             private val infoProvider: (position: Int) -> Fragment,
             private val titleProvider: (position: Int) -> CharSequence
         ) : FragmentPagerAdapter(manager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
@@ -158,18 +193,29 @@ sealed class ViewPagerHelper : FragmentController() {
                 return titleProvider(position)
             }
 
+            override fun getItemId(position: Int): Long {
+                return itemIdProvider(position) ?: position.toLong()
+            }
+
         }
 
     }
 
     class V2(
         private val viewPager: ViewPager2,
-        private val fragmentManager: FragmentManager,
+        fragmentManager: FragmentManager,
         lifecycle: Lifecycle
     ) : ViewPagerHelper() {
 
         init {
-            viewPager.adapter = Adapter(fragmentManager, lifecycle, ::size, ::createFragment)
+            viewPager.adapter = Adapter(
+                fragmentManager,
+                lifecycle,
+                ::size,
+                ::getItemId,
+                ::containsItem,
+                ::createFragment
+            )
         }
 
         @SuppressLint("NotifyDataSetChanged")
@@ -202,7 +248,9 @@ sealed class ViewPagerHelper : FragmentController() {
             fragmentManager: FragmentManager,
             lifecycle: Lifecycle,
             private val sizeProvider: () -> Int,
-            private val infoProvider: (position: Int) -> Fragment,
+            private val itemIdProvider: (position: Int) -> Long?,
+            private val containsItemCallback: (itemId: Long) -> Boolean,
+            private val pageProvider: (position: Int) -> Fragment,
         ) : FragmentStateAdapter(fragmentManager, lifecycle) {
 
             override fun getItemCount(): Int {
@@ -210,27 +258,17 @@ sealed class ViewPagerHelper : FragmentController() {
             }
 
             override fun createFragment(position: Int): Fragment {
-                return infoProvider(position)
+                return pageProvider(position)
             }
 
-        }
-
-        private class DiffHelper: DiffUtil.Callback() {
-            override fun getOldListSize(): Int {
-                TODO("Not yet implemented")
+            override fun getItemId(position: Int): Long {
+                return itemIdProvider(position) ?: RecyclerView.NO_ID
             }
 
-            override fun getNewListSize(): Int {
-                TODO("Not yet implemented")
+            override fun containsItem(itemId: Long): Boolean {
+                return containsItemCallback(itemId)
             }
 
-            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                TODO("Not yet implemented")
-            }
-
-            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                TODO("Not yet implemented")
-            }
         }
 
     }
