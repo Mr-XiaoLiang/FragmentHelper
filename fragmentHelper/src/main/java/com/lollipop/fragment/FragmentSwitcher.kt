@@ -19,7 +19,7 @@ class FragmentSwitcher(
             } else {
                 container.id
             }
-            return "Switcher:$id:$key"
+            return "Lollipop.Switcher:$id:$key"
         }
 
         fun findFragment(manager: FragmentManager, tag: String): Fragment? {

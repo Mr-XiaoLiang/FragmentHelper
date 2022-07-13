@@ -12,7 +12,9 @@ import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 
-sealed class ViewPagerHelper : FragmentController() {
+sealed class ViewPagerHelper(
+    private val fragmentManager: FragmentManager
+) : FragmentController() {
 
     companion object {
         private const val ID_MASK = 0xFFFFFFFFL
@@ -103,11 +105,42 @@ sealed class ViewPagerHelper : FragmentController() {
         return System.identityHashCode(info) == hashCode
     }
 
+    fun findFragment(pageKey: String): Fragment? {
+        for (index in fragmentList.indices) {
+            if (fragmentList[index].pageKey == pageKey) {
+                return findFragment(index)
+            }
+        }
+        return null
+    }
+
+    fun findFragment(position: Int = currentItem): Fragment? {
+        return fragmentManager.findFragmentByTag(getTag(position))
+    }
+
+    inline fun <reified T : Fragment> findTypedFragment(position: Int = currentItem): T? {
+        val fragment = findFragment(position)
+        if (fragment is T) {
+            return fragment
+        }
+        return null
+    }
+
+    inline fun <reified T : Fragment> findTypedFragment(pageKey: String): T? {
+        val fragment = findFragment(pageKey)
+        if (fragment is T) {
+            return fragment
+        }
+        return null
+    }
+
+    protected abstract fun getTag(position: Int): String
+
     class V1(
         private val viewPager: ViewPager,
         fragmentManager: FragmentManager,
         stateEnable: Boolean = true
-    ) : ViewPagerHelper() {
+    ) : ViewPagerHelper(fragmentManager) {
 
         init {
             viewPager.adapter = if (stateEnable) {
@@ -150,6 +183,16 @@ sealed class ViewPagerHelper : FragmentController() {
 
         override fun switch(index: Int) {
             viewPager.currentItem = index
+        }
+
+        override fun getTag(position: Int): String {
+            val adapter = viewPager.adapter
+            val itemId = if (adapter is FragmentPagerAdapter) {
+                adapter.getItemId(position)
+            } else {
+                position.toLong()
+            }
+            return "android:switcher:${viewPager.id}:${itemId}"
         }
 
         private class StateAdapter(
@@ -205,7 +248,7 @@ sealed class ViewPagerHelper : FragmentController() {
         private val viewPager: ViewPager2,
         fragmentManager: FragmentManager,
         lifecycle: Lifecycle
-    ) : ViewPagerHelper() {
+    ) : ViewPagerHelper(fragmentManager) {
 
         init {
             viewPager.adapter = Adapter(
@@ -242,6 +285,11 @@ sealed class ViewPagerHelper : FragmentController() {
 
         override fun switch(index: Int) {
             viewPager.currentItem = index
+        }
+
+        override fun getTag(position: Int): String {
+            val itemId = viewPager.adapter?.getItemId(position) ?: position.toLong()
+            return "f${itemId}"
         }
 
         private class Adapter(
