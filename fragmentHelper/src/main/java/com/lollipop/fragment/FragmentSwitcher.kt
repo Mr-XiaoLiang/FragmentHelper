@@ -148,7 +148,7 @@ class FragmentSwitcher(
         return findFragmentByKey(fragmentManager, container, key)
     }
 
-    inline fun <reified T : Fragment> findTypedFragment(key: String): T? {
+    inline fun <reified T> findTypedFragment(key: String): T? {
         val fragment = findFragment(key)
         if (fragment is T) {
             return fragment

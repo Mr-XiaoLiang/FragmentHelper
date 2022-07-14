@@ -118,7 +118,7 @@ sealed class ViewPagerHelper(
         return fragmentManager.findFragmentByTag(getTag(position))
     }
 
-    inline fun <reified T : Fragment> findTypedFragment(position: Int = currentItem): T? {
+    inline fun <reified T> findTypedFragment(position: Int = currentItem): T? {
         val fragment = findFragment(position)
         if (fragment is T) {
             return fragment
@@ -126,7 +126,7 @@ sealed class ViewPagerHelper(
         return null
     }
 
-    inline fun <reified T : Fragment> findTypedFragment(pageKey: String): T? {
+    inline fun <reified T> findTypedFragment(pageKey: String): T? {
         val fragment = findFragment(pageKey)
         if (fragment is T) {
             return fragment
