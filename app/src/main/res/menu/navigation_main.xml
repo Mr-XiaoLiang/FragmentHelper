@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/viewPager"
+        android:title="ViewPager"
+        android:icon="@drawable/ic_baseline_home_24"/>
+
+    <item
+        android:id="@+id/viewPager2"
+        android:title="ViewPager2"
+        android:icon="@drawable/ic_baseline_grade_24"/>
+
+    <item
+        android:id="@+id/temp1"
+        android:title="Temp"
+        android:icon="@drawable/ic_baseline_gamepad_24"/>
+
+    <item
+        android:id="@+id/temp2"
+        android:title="Temp2"
+        android:icon="@drawable/ic_baseline_person_24"/>
+
+</menu>
