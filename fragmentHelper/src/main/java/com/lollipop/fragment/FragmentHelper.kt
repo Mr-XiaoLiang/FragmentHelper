@@ -24,6 +24,8 @@ object FragmentHelper {
     ) {
 
         private val infoList = ArrayList<FragmentInfo>()
+        private var onFragmentInitCallback: FragmentInitCallback? = null
+        private var onFragmentArgumentsChangedCallback: FragmentArgumentsChangedCallback? = null
 
         fun add(fragment: Class<out Fragment>, pageKey: String): Builder {
             return add(FragmentInfo(fragment, pageKey))
@@ -34,22 +36,44 @@ object FragmentHelper {
             return this
         }
 
-        fun bind(viewGroup: ViewPager, stateEnable: Boolean): ViewPagerHelper.V1 {
+        fun bind(viewGroup: ViewPager, stateEnable: Boolean = false): ViewPagerHelper.V1 {
             return ViewPagerHelper.V1(viewGroup, fragmentManager, stateEnable).apply {
+                initListener(this)
                 reset(infoList)
             }
         }
 
         fun bind(viewGroup: ViewPager2): ViewPagerHelper.V2 {
             return ViewPagerHelper.V2(viewGroup, fragmentManager, lifecycleOwner.lifecycle).apply {
+                initListener(this)
                 reset(infoList)
             }
         }
 
         fun bind(viewGroup: ViewGroup): FragmentSwitcher {
             return FragmentSwitcher(fragmentManager, viewGroup).apply {
+                initListener(this)
                 reset(infoList)
             }
+        }
+
+        private fun initListener(controller: FragmentController) {
+            onFragmentInitCallback?.let {
+                controller.addInitListener(it)
+            }
+            onFragmentArgumentsChangedCallback?.let {
+                controller.addArgumentsChangedListener(it)
+            }
+        }
+
+        fun onFragmentInit(callback: FragmentInitCallback): Builder {
+            this.onFragmentInitCallback = callback
+            return this
+        }
+
+        fun onArgumentsChanged(callback: FragmentArgumentsChangedCallback): Builder {
+            this.onFragmentArgumentsChangedCallback = callback
+            return this
         }
 
     }

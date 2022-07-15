@@ -23,6 +23,13 @@ class TempDemoFragment : Fragment(), LollipopPage {
                 putInt(ARG_BACKGROUND, background)
             }
         }
+
+        fun bindBundle(bundle: Bundle, number: Int, background: Int): Bundle {
+            return bundle.apply {
+                putInt(ARG_NUMBER, number)
+                putInt(ARG_BACKGROUND, background)
+            }
+        }
     }
 
     private var number = 0

@@ -9,7 +9,7 @@ abstract class FragmentController {
     private val initCallback = ListenerManager<FragmentInitCallback>()
     private val argumentsChangedCallback = ListenerManager<FragmentArgumentsChangedCallback>()
 
-    fun addListener(callback: FragmentInitCallback) {
+    fun addInitListener(callback: FragmentInitCallback) {
         initCallback.add(callback)
     }
 
@@ -17,7 +17,7 @@ abstract class FragmentController {
         initCallback.remove(callback)
     }
 
-    fun addListener(callback: FragmentArgumentsChangedCallback) {
+    fun addArgumentsChangedListener(callback: FragmentArgumentsChangedCallback) {
         argumentsChangedCallback.add(callback)
     }
 

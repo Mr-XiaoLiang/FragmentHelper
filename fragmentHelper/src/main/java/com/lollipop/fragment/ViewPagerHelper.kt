@@ -49,6 +49,10 @@ sealed class ViewPagerHelper(
         return fragmentList[index]
     }
 
+    operator fun get(pageKey: String): FragmentInfo? {
+        return fragmentList.find { it.pageKey == pageKey }
+    }
+
     protected fun loadTitle(context: Context, index: Int): String {
         if (index in 0 until size) {
             return loadTitle(fragmentList[index], context)

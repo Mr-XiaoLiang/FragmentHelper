@@ -1,14 +1,13 @@
 package com.lollipop.fragmenthelper.demo
 
 import android.os.Bundle
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.navigation.NavigationBarView
+import androidx.core.content.ContextCompat
 import com.lollipop.fragment.FragmentHelper
 import com.lollipop.fragment.FragmentInfo
 import com.lollipop.fragmenthelper.demo.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), TempDemoFragment.Callback {
 
     companion object {
         private const val TAG_VIEWPAGER = "TAG_VIEWPAGER"
@@ -21,31 +20,50 @@ class MainActivity : AppCompatActivity() {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
+    private var number = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        FragmentHelper.with(this)
+        val switcher = FragmentHelper.with(this)
             .add(ViewPageDemoFragment::class.java, TAG_VIEWPAGER)
             .add(ViewPage2DemoFragment::class.java, TAG_VIEWPAGER2)
-            .add(FragmentInfo(TempDemoFragment::class.java, TAG_TEMP, colorId = R.color.purple_200))
-            .add(FragmentInfo(TempDemoFragment::class.java, TAG_TEMP2, colorId = R.color.purple_500))
+            .add(TempDemoFragment::class.java, TAG_TEMP)
+            .add(TempDemoFragment::class.java,TAG_TEMP2)
+            .bind(binding.fragmentContainerView)
         binding.bottomNavigationView.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.viewPager -> {
-
+                    switcher.switchTo(TAG_VIEWPAGER)
                 }
                 R.id.viewPager2 -> {
-
+                    switcher.switchTo(TAG_VIEWPAGER2)
                 }
                 R.id.temp1 -> {
-
+                    switcher.switchTo(
+                        TAG_TEMP,
+                        TempDemoFragment.buildBundle(
+                            number,
+                            ContextCompat.getColor(this, R.color.purple_200)
+                        )
+                    )
                 }
                 R.id.temp2 -> {
-
+                    switcher.switchTo(
+                        TAG_TEMP2,
+                        TempDemoFragment.buildBundle(
+                            number,
+                            ContextCompat.getColor(this, R.color.purple_500)
+                        )
+                    )
                 }
             }
             true
         }
+    }
+
+    override fun onNumberChanged(number: Int) {
+        this.number = number
     }
 
 }
