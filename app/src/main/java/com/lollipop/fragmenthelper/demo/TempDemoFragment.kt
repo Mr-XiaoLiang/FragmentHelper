@@ -88,6 +88,7 @@ class TempDemoFragment : Fragment(), LollipopPage {
         binding?.button?.setOnClickListener {
             number++
             callback?.onNumberChanged(number)
+            updateNumber()
         }
         updateNumber()
     }
