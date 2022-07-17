@@ -1,6 +1,8 @@
 package com.lollipop.fragmenthelper.demo
 
 import android.os.Bundle
+import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,15 +11,12 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayoutMediator
 import com.lollipop.fragment.FragmentHelper
 import com.lollipop.fragment.FragmentInfo
-import com.lollipop.fragment.LollipopPage
 import com.lollipop.fragmenthelper.demo.databinding.FragmentViewpager2DemoBinding
 
 
-class ViewPage2DemoFragment : Fragment(), LollipopPage {
+class ViewPage2DemoFragment : Fragment() {
 
     private var binding: FragmentViewpager2DemoBinding? = null
-
-    private var number = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -71,7 +70,7 @@ class ViewPage2DemoFragment : Fragment(), LollipopPage {
             val color = context?.let {
                 switcher[pageKey]?.loadColor(it)
             } ?: 0
-            TempDemoFragment.bindBundle(arguments, number, color)
+            TempDemoFragment.bindBundle(arguments, color)
         }
 
         TabLayoutMediator(
@@ -81,13 +80,15 @@ class ViewPage2DemoFragment : Fragment(), LollipopPage {
             val states = arrayOfNulls<IntArray>(2)
             states[0] = intArrayOf(android.R.attr.state_selected)
             states[1] = intArrayOf()
-            tabView.setText(switcher.get(position).loadTitle(b.viewPager.resources))
+            tabView.text = switcher[position].loadTitle(b.viewPager.resources)
+            tabView.gravity = Gravity.CENTER
             tab.customView = tabView
         }.attach()
     }
 
-
-    override fun onArgumentsChanged() {
-        this.number = number
+    override fun onResume() {
+        super.onResume()
+        activity?.title = "共同计数-VP2"
     }
+
 }

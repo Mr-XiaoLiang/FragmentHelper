@@ -66,13 +66,22 @@ class ViewPageDemoFragment : Fragment(), TempDemoFragment.Callback {
             val color = context?.let {
                 switcher[pageKey]?.loadColor(it)
             } ?: 0
-            TempDemoFragment.bindBundle(arguments, number, color)
+            TempDemoFragment.bindBundle(arguments, color)
         }
         b.tabLayout.setupWithViewPager(b.viewPager)
     }
 
     override fun onNumberChanged(number: Int) {
         this.number = number
+    }
+
+    override fun getNumber(): Int {
+        return number
+    }
+
+    override fun onResume() {
+        super.onResume()
+        activity?.title = "独立计数"
     }
 
 }

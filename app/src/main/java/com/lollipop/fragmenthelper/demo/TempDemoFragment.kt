@@ -14,32 +14,36 @@ class TempDemoFragment : Fragment(), LollipopPage {
 
     companion object {
 
-        private const val ARG_NUMBER = "ARG_NUMBER"
         private const val ARG_BACKGROUND = "ARG_BACKGROUND"
+        private const val ARG_TITLE = "ARG_TITLE"
 
-        fun buildBundle(number: Int, background: Int): Bundle {
+        fun buildBundle(background: Int): Bundle {
             return Bundle().apply {
-                putInt(ARG_NUMBER, number)
                 putInt(ARG_BACKGROUND, background)
             }
         }
 
-        fun bindBundle(bundle: Bundle, number: Int, background: Int): Bundle {
+        fun bindBundle(bundle: Bundle, background: Int): Bundle {
             return bundle.apply {
-                putInt(ARG_NUMBER, number)
                 putInt(ARG_BACKGROUND, background)
             }
+        }
+
+        fun putTitle(bundle: Bundle, title: String) {
+            bundle.putString(ARG_TITLE, title)
         }
     }
 
-    private var number = 0
+    private val number: Int
+        get() {
+            return callback?.getNumber() ?: 0
+        }
 
     private var binding: FragmentTempDemoBinding? = null
 
     private var callback: Callback? = null
 
     override fun onArgumentsChanged() {
-        number = arguments?.getInt(ARG_NUMBER, 0) ?: 0
         if (isResumed) {
             updateNumber()
             binding?.valueView?.setBackgroundColor(
@@ -86,8 +90,8 @@ class TempDemoFragment : Fragment(), LollipopPage {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding?.button?.setOnClickListener {
-            number++
-            callback?.onNumberChanged(number)
+            val n = number + 1
+            callback?.onNumberChanged(n)
             updateNumber()
         }
         updateNumber()
@@ -106,6 +110,9 @@ class TempDemoFragment : Fragment(), LollipopPage {
                 Color.TRANSPARENT
             ) ?: Color.TRANSPARENT
         )
+        arguments?.getString(ARG_TITLE)?.let {
+            activity?.title = it
+        }
     }
 
     override fun onDetach() {
@@ -113,8 +120,9 @@ class TempDemoFragment : Fragment(), LollipopPage {
         callback = null
     }
 
-    fun interface Callback {
+    interface Callback {
         fun onNumberChanged(number: Int)
+        fun getNumber(): Int
     }
 
 }
