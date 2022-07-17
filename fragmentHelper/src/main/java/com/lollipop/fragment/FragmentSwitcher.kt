@@ -123,6 +123,7 @@ class FragmentSwitcher(
             backStack = ""
         }
         transaction.commit()
+        currentPage = pageKey
         return backStack
     }
 
