@@ -29,6 +29,10 @@ sealed class ViewPagerHelper(
 
     abstract val currentItem: Int
 
+    /**
+     * 切换到pageKey对应的页面
+     * 如果找不到对应的FragmentInfo，那么将不会进行切换
+     */
     fun switch(pageKey: String) {
         for (i in fragmentList.indices) {
             if (fragmentList[i].pageKey == pageKey) {
@@ -38,6 +42,10 @@ sealed class ViewPagerHelper(
         }
     }
 
+    /**
+     * 切换为指定序号的页面
+     * @param index 页面所在的序号，如果index不在有效的范围，可能会发生异常
+     */
     abstract fun switch(index: Int)
 
     override val size: Int
@@ -45,10 +53,18 @@ sealed class ViewPagerHelper(
             return fragmentList.size
         }
 
+    /**
+     * 按照序号或者FragmentInfo
+     * @param index 页面所在的序号，如果index不在有效的范围，可能会发生异常
+     */
     operator fun get(index: Int): FragmentInfo {
         return fragmentList[index]
     }
 
+    /**
+     * 按照pageKey来查找FragmentInfo
+     * @param pageKey 如果pageKey不存在，那么将会返回null
+     */
     operator fun get(pageKey: String): FragmentInfo? {
         return fragmentList.find { it.pageKey == pageKey }
     }
@@ -64,18 +80,27 @@ sealed class ViewPagerHelper(
         return createFragment(fragmentList[index], null)
     }
 
+    /**
+     * 重置所有FragmentInfo
+     */
     fun reset(list: List<FragmentInfo>) {
         fragmentList.clear()
         fragmentList.addAll(list)
         notifyDataSetChanged()
     }
 
+    /**
+     * 添加一个FragmentInfo
+     */
     fun add(info: FragmentInfo) {
         val start = fragmentList.size
         fragmentList.add(info)
         notifyItemInserted(start, info.pageKey)
     }
 
+    /**
+     * 移除一个FragmentInfo
+     */
     fun remove(info: FragmentInfo) {
         val index = fragmentList.indexOf(info)
         if (index >= 0) {
@@ -84,6 +109,9 @@ sealed class ViewPagerHelper(
         }
     }
 
+    /**
+     * 讲一个FragmentInfo覆盖到指定的位置
+     */
     fun set(index: Int, info: FragmentInfo) {
         fragmentList[index] = info
         notifyItemChanged(index, info.pageKey)
@@ -109,6 +137,10 @@ sealed class ViewPagerHelper(
         return System.identityHashCode(info) == hashCode
     }
 
+    /**
+     * 按照pageKey查找一个Fragment
+     * 如果pageKey不存在，或者没有被实例化，那么将会返回null
+     */
     fun findFragment(pageKey: String): Fragment? {
         for (index in fragmentList.indices) {
             if (fragmentList[index].pageKey == pageKey) {
@@ -118,10 +150,19 @@ sealed class ViewPagerHelper(
         return null
     }
 
+    /**
+     * 按照序号查找一个Fragment
+     * 如果序号不存在，或者没有被实例化，那么将会返回null
+     */
     fun findFragment(position: Int = currentItem): Fragment? {
         return fragmentManager.findFragmentByTag(getTag(position))
     }
 
+    /**
+     * 按照序号查找一个Fragment
+     * 如果序号不存在，或者没有被实例化，那么将会返回null
+     * 如果查找到的Fragment和指定的类型不符合，也会返回null
+     */
     inline fun <reified T> findTypedFragment(position: Int = currentItem): T? {
         val fragment = findFragment(position)
         if (fragment is T) {
@@ -130,6 +171,11 @@ sealed class ViewPagerHelper(
         return null
     }
 
+    /**
+     * 按照pageKey查找一个Fragment
+     * 如果pageKey不存在，或者没有被实例化，那么将会返回null
+     * 如果查找到的Fragment和指定的类型不符合，也会返回null
+     */
     inline fun <reified T> findTypedFragment(pageKey: String): T? {
         val fragment = findFragment(pageKey)
         if (fragment is T) {
@@ -140,6 +186,9 @@ sealed class ViewPagerHelper(
 
     protected abstract fun getTag(position: Int): String
 
+    /**
+     * ViewPager的功能实现类
+     */
     class V1(
         private val viewPager: ViewPager,
         fragmentManager: FragmentManager,
@@ -248,6 +297,9 @@ sealed class ViewPagerHelper(
 
     }
 
+    /**
+     * ViewPager2的功能实现类
+     */
     class V2(
         private val viewPager: ViewPager2,
         fragmentManager: FragmentManager,

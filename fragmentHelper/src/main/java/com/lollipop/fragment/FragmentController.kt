@@ -9,18 +9,30 @@ abstract class FragmentController {
     private val initCallback = ListenerManager<FragmentInitCallback>()
     private val argumentsChangedCallback = ListenerManager<FragmentArgumentsChangedCallback>()
 
+    /**
+     * 添加初始化的监听器
+     */
     fun addInitListener(callback: FragmentInitCallback) {
         initCallback.add(callback)
     }
 
+    /**
+     * 移除初始化监听器
+     */
     fun removeListener(callback: FragmentInitCallback) {
         initCallback.remove(callback)
     }
 
+    /**
+     * 添加参数变更的监听器
+     */
     fun addArgumentsChangedListener(callback: FragmentArgumentsChangedCallback) {
         argumentsChangedCallback.add(callback)
     }
 
+    /**
+     * 移除参数变更的监听器
+     */
     fun removeListener(callback: FragmentArgumentsChangedCallback) {
         argumentsChangedCallback.remove(callback)
     }
@@ -33,6 +45,10 @@ abstract class FragmentController {
         argumentsChangedCallback.invoke { it.onFragmentArgumentsChanged(pageKey, arguments) }
     }
 
+    /**
+     * page的数量
+     * 它表示FragmentInfo的数量，并不表示已经被实例化的Fragment的数量
+     */
     abstract val size: Int
 
     private fun onArgumentsChanged(fragment: Fragment) {

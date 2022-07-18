@@ -46,6 +46,9 @@ class FragmentInfo(
     val iconId: Int = 0
 ) {
 
+    /**
+     * 加载标题信息
+     */
     fun loadTitle(resources: Resources): CharSequence {
         if (titleId == 0) {
             return ""
@@ -53,6 +56,9 @@ class FragmentInfo(
         return resources.getString(titleId)
     }
 
+    /**
+     * 加载icon信息
+     */
     fun loadIcon(context: Context): Drawable? {
         if (iconId == 0) {
             return null
@@ -60,6 +66,9 @@ class FragmentInfo(
         return ContextCompat.getDrawable(context, iconId)
     }
 
+    /**
+     * 加载颜色信息
+     */
     fun loadColor(context: Context): Int {
         if (colorId == 0) {
             return 0

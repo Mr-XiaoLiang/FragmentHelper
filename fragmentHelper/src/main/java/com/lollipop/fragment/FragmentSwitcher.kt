@@ -37,9 +37,15 @@ class FragmentSwitcher(
 
     private val infoMap = HashMap<String, FragmentInfo>()
 
+    /**
+     * 获取当前选中的Page的key
+     */
     var currentPage: String = ""
         private set
 
+    /**
+     * 是否开启返回栈
+     */
     var isBackstackEnable = false
 
     init {
@@ -54,6 +60,11 @@ class FragmentSwitcher(
             return infoMap.size
         }
 
+    /**
+     * 设置一个FragmentInfo
+     * 如果存在同名的Fragment，那么将会被覆盖
+     * 如果当前已经选中了这个Fragment，那么将会更新或者切换
+     */
     fun set(info: FragmentInfo) {
         infoMap[info.pageKey] = info
         if (info.pageKey == currentPage) {
@@ -61,6 +72,9 @@ class FragmentSwitcher(
         }
     }
 
+    /**
+     * 按照Key来寻找一个FragmentInfo
+     */
     fun findInfo(key: String): FragmentInfo? {
         if (infoMap.isEmpty()) {
             return null
@@ -68,6 +82,10 @@ class FragmentSwitcher(
         return infoMap[key]
     }
 
+    /**
+     * 移除一个指定Key的FragmentInfo
+     * @param backup 表示如果当前选中的是被移除的Fragment，那么以backup为替换
+     */
     fun remove(pageKey: String, backup: String = "") {
         infoMap.remove(pageKey)
         if (pageKey == currentPage) {
@@ -75,6 +93,10 @@ class FragmentSwitcher(
         }
     }
 
+    /**
+     * 重置所有的FragmentInfo
+     * @param backup 表示被重置之后选中的Fragment
+     */
     fun reset(list: List<FragmentInfo>, backup: String = "") {
         infoMap.clear()
         list.forEach {
@@ -89,6 +111,11 @@ class FragmentSwitcher(
         }
     }
 
+    /**
+     * 切换为新的Fragment
+     * @param pageKey 新的Fragment的pageKey
+     * @param arguments 仅本次有效的参数信息，它与初始化参数并不冲突
+     */
     fun switchTo(
         pageKey: String,
         arguments: Bundle? = null
@@ -137,6 +164,11 @@ class FragmentSwitcher(
         onArgumentsChanged(fragment)
     }
 
+    /**
+     * 弹出返回栈
+     * 如果返回栈是关闭的，那么可能无法正确的完成弹出返回栈
+     * @param name 返回栈的名称，如果为空，那么将会直接弹出最上层的栈，否则将会弹出到指定的栈
+     */
     fun popBackStack(name: String = "") {
         if (name.isEmpty()) {
             fragmentManager.popBackStack()
@@ -145,10 +177,20 @@ class FragmentSwitcher(
         }
     }
 
+    /**
+     * 按照pageKey查找Fragment
+     * 如果一个Fragment没有被实例化，那么将会找不到
+     * @param key FragmentInfo中的pageKey
+     */
     fun findFragment(key: String): Fragment? {
         return findFragmentByKey(fragmentManager, container, key)
     }
 
+    /**
+     * 按照pageKey查找Fragment
+     * 如果一个Fragment没有被实例化，那么将会找不到
+     * 如果查找到的Fragment类型不符，也会返回null
+     */
     inline fun <reified T> findTypedFragment(key: String): T? {
         val fragment = findFragment(key)
         if (fragment is T) {
